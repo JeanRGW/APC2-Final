@@ -33,7 +33,7 @@ struct Treinador {
 // Recebe e escreve o json
 void wJson(json data) {
 	ofstream outJson("pokemonExemplo.json");
-	outJson << setw(4) << data << endl;
+	outJson << setw(4) << data << endl;	 // setw deixa o json mais legível.
 	outJson.close();
 
 	cout << "JSON escrito para o arquivo" << endl;
@@ -69,7 +69,6 @@ int main() {
 	data["ataques"]	 = powers;
 
 	// Adicionar struct
-	Treinador treinadorVazio;
 	Treinador treinador{"Jean", "04/02/2024"};
 
 	// Convertendo usando json{{"Identificador", campo.daStruct}, {"Identificador2", campo2.daStruct}}
