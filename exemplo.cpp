@@ -1,6 +1,8 @@
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <string>
 
 using json = nlohmann::json;
 using namespace std;
@@ -89,7 +91,7 @@ int main() {
 	}
 	cout << endl;
 
-	/* Tambem pode usar
+	/* Também pode usar
 	int i = 0;
 	for (string power : rdata["ataques"]) {
 		rpowers[i] = power;
