@@ -1,0 +1,13 @@
+{
+  "editor.defaultFormatter": "ms-vscode.cpptools",
+  "C_Cpp.formatting": "clangFormat",
+  "C_Cpp.clang_format_style": "file",
+  "editor.formatOnSave": true,
+
+  "files.associations": {
+    "iostream": "cpp",
+    "iosfwd": "cpp",
+    "ostream": "cpp",
+    "xstring": "cpp"
+  }
+}
