@@ -22,5 +22,11 @@
     "especie": "Palteon",
     "tipo": "dark",
     "base": { "hp": 100, "def": 100, "atk": 100 }
+  },
+  {
+    "id": "05",
+    "especie": "Blaspenis",
+    "tipo": "water",
+    "base": { "hp": 70, "def": 100, "atk": 70 }
   }
 ]
