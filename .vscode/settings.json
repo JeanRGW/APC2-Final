@@ -9,7 +9,15 @@
     "iosfwd": "cpp",
     "ostream": "cpp",
     "xstring": "cpp",
-    "iomanip": "cpp"
+    "iomanip": "cpp",
+    "chrono": "cpp",
+    "functional": "cpp",
+    "optional": "cpp",
+    "system_error": "cpp",
+    "type_traits": "cpp",
+    "xlocmon": "cpp",
+    "xlocnum": "cpp",
+    "xtr1common": "cpp"
   },
 
   "[json]": {

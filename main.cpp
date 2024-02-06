@@ -32,18 +32,54 @@ json rJson(string file) {
 	return data;
 }
 
+// Checar se um valor está contido em um array json
+bool valorContido(json ArrayJson, string value) {
+	for (const string& elem : ArrayJson) {
+		if (elem == value) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// Encontrar os ataques permitidos para um pal
+json ataquesPermitidos(json Pal) {
+	json ataquesPermitidos;
+
+	json ataques				  = rJson("ataques.json");
+	json ataquesPermitidosPokemon = Pal["ataquesPermitidos"];
+
+	for (const json ataque : ataques) {
+		if (Pal["tipo"] == ataque["tipo"] || valorContido(ataquesPermitidosPokemon, ataque["nome"])) {
+			ataquesPermitidos += ataque;
+		}
+	}
+
+	return ataquesPermitidos;
+}
+
 struct Ataque {
 	string nome;
 	int dmg;
 	string tipo;
 
-	Ataque() {}
+	Ataque() {
+		nome = "null";
+		dmg	 = 0;
+		tipo = "null";
+	}
 
-	Ataque(string Nome, int Dmg, string Tipo) : nome(Nome), dmg(Dmg), tipo(Tipo) {}
-
+	// Define o ataque com base no indice em ataques.json
 	Ataque(string ID) {
 		json ataque = rJson("ataques.json")[ID];
 
+		nome = ataque["nome"];
+		dmg	 = ataque["dmg"];
+		tipo = ataque["tipo"];
+	}
+
+	// Define o ataque com base no json
+	Ataque(json ataque) {
 		nome = ataque["nome"];
 		dmg	 = ataque["dmg"];
 		tipo = ataque["tipo"];
@@ -63,9 +99,6 @@ struct Pal {
 
 	Pal() {}
 
-	Pal(string Nome, string Especie, int Lvl, int Hp, int Def, int Atk)
-		: nome(Nome), especie(Especie), lvl(Lvl), hp(Hp), def(Def), atk(Atk) {}
-
 	Pal(int ID) {
 		json palInfo = rJson("pals.json")[ID - 1];
 		json palBase = palInfo["base"];
@@ -84,6 +117,14 @@ struct Pal {
 
 		atk = palBase["atk"];
 		atk *= (1.0 + lvl / 50.0);
+
+		json ataques   = ataquesPermitidos(palInfo);
+		int maxAtaques = ataques.size() >= 4 ? 4 : ataques.size();
+
+		int i = 0;
+		while (i < maxAtaques) {
+			rand() % ataques.size();
+		}
 	}
 
 	void print() {
