@@ -13,5 +13,10 @@
     "nome": "Scratch",
     "dmg": 35,
     "tipo": "normal"
+  },
+  {
+    "nome": "Thunderbolt",
+    "dmg": 80,
+    "tipo": "electric"
   }
 ]

@@ -58,36 +58,6 @@ json ataquesPermitidos(json Pal) {
 	return ataquesPermitidos;
 }
 
-struct Ataque {
-	string nome;
-	int dmg;
-	string tipo;
-
-	Ataque() {
-		nome = "null";
-		dmg	 = 0;
-		tipo = "null";
-	}
-
-	// Define o ataque com base no indice em ataques.json
-	Ataque(string ID) {
-		json ataque = rJson("ataques.json")[ID];
-
-		nome = ataque["nome"];
-		dmg	 = ataque["dmg"];
-		tipo = ataque["tipo"];
-	}
-
-	// Define o ataque com base no json
-	Ataque(json ataque) {
-		nome = ataque["nome"];
-		dmg	 = ataque["dmg"];
-		tipo = ataque["tipo"];
-	}
-
-	void print() { cout << nome << endl << dmg << endl << tipo << endl; }
-};
-
 struct Pal {
 	string nome;
 	string especie;
@@ -95,7 +65,7 @@ struct Pal {
 	int atk;
 	int hp;
 	int def;
-	Ataque ataques[4];
+	json ataques[4];
 
 	Pal() {}
 
@@ -118,12 +88,16 @@ struct Pal {
 		atk = palBase["atk"];
 		atk *= (1.0 + lvl / 50.0);
 
-		json ataques   = ataquesPermitidos(palInfo);
-		int maxAtaques = ataques.size() >= 4 ? 4 : ataques.size();
+		json ataquesPerm = ataquesPermitidos(palInfo);
+		int maxAtaques	 = ataquesPerm.size() >= 4 ? 4 : ataquesPerm.size();
 
 		int i = 0;
 		while (i < maxAtaques) {
-			rand() % ataques.size();
+			int random = rand() % ataquesPerm.size();
+			ataques[i] = ataquesPerm[random];
+
+			ataquesPerm.erase(random);
+			i++;
 		}
 	}
 
@@ -138,6 +112,14 @@ struct Pal {
 		cout << "ATK: " << atk << endl;
 		cout << "HP: " << hp << endl;
 		cout << "DEF: " << def << endl;
+
+		cout << "Ataques:" << endl;
+
+		for (int i = 0; i < 4; i++) {
+			if (!ataques[i].empty()) {
+				cout << setw(4) << ataques[i] << endl;
+			}
+		}
 	}
 };
 
@@ -146,8 +128,10 @@ int main() {
 	srand(1);
 
 	Pal primeiroPal(01);
+	Pal segundoPal(02);
 
 	primeiroPal.print();
+	segundoPal.print();
 
 	return 0;
 }
