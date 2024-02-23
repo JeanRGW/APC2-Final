@@ -7,6 +7,18 @@
 using json = nlohmann::json;
 using namespace std;
 
+// Definir "banco de dados global"
+json rJson(string);
+json gPals	  = rJson("pals.json");
+json gAtaques = rJson("ataques.json");
+
+// Atualizar arquivos
+void wJson(json, string);
+void updateFiles() {
+	wJson(gPals, "pals.json");
+	wJson(gAtaques, "ataques.json");
+}
+
 // Recebe o json e nome de arquivo e escreve o json
 void wJson(json data, string file) {
 	ofstream outJson(file);
@@ -42,22 +54,6 @@ bool valorContido(json ArrayJson, string value) {
 	return false;
 }
 
-// Encontrar os ataques permitidos para um pal
-json ataquesPermitidos(json Pal) {
-	json ataquesPermitidos;
-
-	json ataques				  = rJson("ataques.json");
-	json ataquesPermitidosPokemon = Pal["ataquesPermitidos"];
-
-	for (const json ataque : ataques) {
-		if (Pal["tipo"] == ataque["tipo"] || valorContido(ataquesPermitidosPokemon, ataque["nome"])) {
-			ataquesPermitidos += ataque;
-		}
-	}
-
-	return ataquesPermitidos;
-}
-
 struct Pal {
 	string nome;
 	string especie;
@@ -70,7 +66,7 @@ struct Pal {
 	Pal() {}
 
 	Pal(int ID) {
-		json palInfo = rJson("pals.json")[ID - 1];
+		json palInfo = gPals[ID - 1];
 		json palBase = palInfo["base"];
 
 		especie = palInfo["especie"];
@@ -88,8 +84,29 @@ struct Pal {
 		atk = palBase["atk"];
 		atk *= (1.0 + lvl / 50.0);
 
-		json ataquesPerm = ataquesPermitidos(palInfo);
-		int maxAtaques	 = ataquesPerm.size() >= 4 ? 4 : ataquesPerm.size();
+		definirAtaques(palInfo);
+	}
+
+	// Encontrar os ataques permitidos para um pal
+	json ataquesPermitidos(json creatureInfo) {
+		json ataquesPermitidos;
+
+		json Extras = creatureInfo["ataquesPermitidos"];
+
+		for (const json ataque : gAtaques) {
+			if (creatureInfo["tipo"] == ataque["tipo"] || valorContido(Extras, ataque["nome"])) {
+				ataquesPermitidos += ataque;
+			}
+		}
+
+		return ataquesPermitidos;
+	}
+
+	// Definir ataques
+	void definirAtaques(json creatureInfo) {
+		json ataquesPerm = ataquesPermitidos(creatureInfo);
+
+		int maxAtaques = ataquesPerm.size() >= 4 ? 4 : ataquesPerm.size();
 
 		int i = 0;
 		while (i < maxAtaques) {
@@ -123,6 +140,15 @@ struct Pal {
 	}
 };
 
+void displayPals() {
+	cout << "--ID"
+		 << "------------ESPECIE"
+		 << "--------TIPO" << endl;
+	for (auto& pal : gPals) {
+		cout << setw(4) << pal["id"].get<string>() << setw(19) << pal["especie"].get<string>() << setw(12)
+			 << pal["tipo"].get<string>() << endl;
+	}
+}
 // MAIN
 int main() {
 	srand(1);
@@ -132,6 +158,8 @@ int main() {
 
 	primeiroPal.print();
 	segundoPal.print();
+
+	displayPals();
 
 	return 0;
 }
