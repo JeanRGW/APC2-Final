@@ -1,8 +1,17 @@
+#include <conio.h>
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
+
+#define KEY_UP 72
+#define KEY_DOWN 80
+#define KEY_LEFT 75
+#define KEY_RIGHT 77
+#define KEY_ESC 27
+#define KEY_ENTER 13
 
 using json = nlohmann::json;
 using namespace std;
@@ -140,46 +149,132 @@ struct Pal {
 	}
 };
 
+struct Menu {
+	int escolha = 0;
+	vector<string> opt;
+	string header  = "";
+	bool hasHeader = false;
+
+	bool enter = false;
+	bool esc   = false;
+
+	// Construtor padrão
+	Menu(vector<string> opts) : opt(opts){};
+
+	// Construtor para json, Menu(arrayjson, {prop1, prop2, prop3})
+	Menu(json opts, vector<string> props) {
+		// Converter para obj para string
+		for (auto el : opts) {
+			string line = "";
+			if (props.size() > 0) {
+				for (string prop : props) {
+					string propValue = el[prop];
+					propValue.resize(20, ' ');
+					line += propValue;
+				}
+			} else {
+				line = el;
+			}
+			opt.push_back(line);
+		}
+
+		// Header
+		if (props.size() > 0) {
+			hasHeader = true;
+
+			for (string prop : props) {
+				prop.resize(20, ' ');
+				header += prop;
+			}
+
+			for (auto& c : header) c = toupper(c);
+			header += "\n";
+		}
+	}
+
+	void interact() {
+		// Montar frame
+		string frame = "\033[2J\033[H";	 // Inicializar com ascii para limpar tela
+		if (hasHeader) {
+			frame += header;
+		}
+
+		for (int i = 0; i < opt.size(); i++) {
+			if (i == escolha) {
+				frame += ("\e[1;97m" + opt[i] + "\e[0m");  // Highlight selecionado
+			} else {
+				frame += opt[i];
+			}
+
+			frame += "\n";
+		}
+		cout << frame;
+
+		// Interação
+		int key = getch();
+		if (key == KEY_UP && escolha > 0) {
+			escolha--;
+		} else if (key == KEY_DOWN && escolha < opt.size() - 1) {
+			escolha++;
+		} else if (key == KEY_ENTER) {
+			enter = true;
+		} else if (key == KEY_ESC) {
+			esc = true;
+		}
+	};
+
+	bool selected() {
+		if (enter == true) {
+			enter = false;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	bool exit() {
+		if (esc == true) {
+			esc = false;
+			return true;
+		} else {
+			return false;
+		}
+	}
+};
+
 struct Instance {
 	Instance() { menu(); }
 
 	void palsMenu() {
-		int dump;
+		Menu palsMenu(gPals, {"especie", "tipo"});
 
-		cout << "--ID"
-			 << "------------ESPECIE"
-			 << "--------TIPO" << endl;
-		for (auto& pal : gPals) {
-			cout << setw(4) << pal["id"].get<string>() << setw(19) << pal["especie"].get<string>() << setw(12)
-				 << pal["tipo"].get<string>() << endl;
+		while (!palsMenu.exit()) {
+			palsMenu.interact();
 		}
-
-		cout << "use enter para voltar";
-		cin >> dump;
-		cin.clear();
 	}
 
 	void menu() {
-		string opt[] = {"1.Inventário", "2.Pals", "3.Ataques", "0.Sair"};
+		// vector<string> opt = {"1.Inventário", "2.Pals", "3.Ataques", "0.Sair"};
+		Menu mainMenu({"1.Inventário", "2.Pals", "3.Ataques", "0.Sair"});
 
-		int escolha;
 		while (true) {
-			for (string opt : opt) {
-				cout << opt << endl;
-			}
-			cin >> escolha;
-			cin.clear();
+			mainMenu.interact();
 
-			switch (escolha) {
-				case 0:
-					return;
-					break;
-				case 1:
-					cout << "salve" << endl;
-					break;
-				case 2:
-					palsMenu();
-					break;
+			if (mainMenu.selected()) {
+				switch (mainMenu.escolha) {
+					case 0:
+						// inv
+						break;
+					case 1:
+						palsMenu();
+						break;
+					case 2:
+						// ataques
+						break;
+					case 3:
+						return;
+						break;
+				}
 			}
 		}
 	}
@@ -188,6 +283,17 @@ struct Instance {
 // MAIN
 int main() {
 	srand(1);
+
+	/*
+		string a, b;
+		cin >> a;
+		cin >> b;
+
+		a.resize(24, ' ');
+		string final = a + b;
+		cout << final;
+		cin >> final;
+	*/
 
 	Instance ins;
 

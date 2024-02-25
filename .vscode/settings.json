@@ -19,7 +19,8 @@
     "xlocnum": "cpp",
     "xtr1common": "cpp",
     "vector": "cpp",
-    "ios": "cpp"
+    "ios": "cpp",
+    "cstring": "cpp"
   },
 
   "[json]": {
