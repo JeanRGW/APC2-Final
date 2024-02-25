@@ -140,26 +140,64 @@ struct Pal {
 	}
 };
 
-void displayPals() {
-	cout << "--ID"
-		 << "------------ESPECIE"
-		 << "--------TIPO" << endl;
-	for (auto& pal : gPals) {
-		cout << setw(4) << pal["id"].get<string>() << setw(19) << pal["especie"].get<string>() << setw(12)
-			 << pal["tipo"].get<string>() << endl;
+struct Instance {
+	Instance() { menu(); }
+
+	void palsMenu() {
+		int dump;
+
+		cout << "--ID"
+			 << "------------ESPECIE"
+			 << "--------TIPO" << endl;
+		for (auto& pal : gPals) {
+			cout << setw(4) << pal["id"].get<string>() << setw(19) << pal["especie"].get<string>() << setw(12)
+				 << pal["tipo"].get<string>() << endl;
+		}
+
+		cout << "use enter para voltar";
+		cin >> dump;
+		cin.clear();
 	}
-}
+
+	void menu() {
+		string opt[] = {"1.Inventário", "2.Pals", "3.Ataques", "0.Sair"};
+
+		int escolha;
+		while (true) {
+			for (string opt : opt) {
+				cout << opt << endl;
+			}
+			cin >> escolha;
+			cin.clear();
+
+			switch (escolha) {
+				case 0:
+					return;
+					break;
+				case 1:
+					cout << "salve" << endl;
+					break;
+				case 2:
+					palsMenu();
+					break;
+			}
+		}
+	}
+};
+
 // MAIN
 int main() {
 	srand(1);
 
+	Instance ins;
+
+	/*
 	Pal primeiroPal(01);
 	Pal segundoPal(02);
 
 	primeiroPal.print();
 	segundoPal.print();
-
-	displayPals();
+	*/
 
 	return 0;
 }
