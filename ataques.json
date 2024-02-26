@@ -1,22 +1,22 @@
 [
-  {
-    "nome": "Petal Dance",
-    "dmg": 80,
-    "tipo": "grass"
-  },
-  {
-    "nome": "Flamethrower",
-    "dmg": 75,
-    "tipo": "fire"
-  },
-  {
-    "nome": "Scratch",
-    "dmg": 35,
-    "tipo": "normal"
-  },
-  {
-    "nome": "Thunderbolt",
-    "dmg": 80,
-    "tipo": "electric"
-  }
+    {
+        "dmg": 80,
+        "nome": "Petal Dance",
+        "tipo": "grass"
+    },
+    {
+        "dmg": 75,
+        "nome": "Flamethrower",
+        "tipo": "fire"
+    },
+    {
+        "dmg": 35,
+        "nome": "Scratch",
+        "tipo": "normal"
+    },
+    {
+        "dmg": 80,
+        "nome": "Thunderbolt",
+        "tipo": "electric"
+    }
 ]

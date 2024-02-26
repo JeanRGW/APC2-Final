@@ -158,7 +158,10 @@ struct Menu {
 	bool enter = false;
 	bool esc   = false;
 
-	// Construtor padrão
+	// Construtor vazio
+	Menu(){};
+
+	// Construtor simples
 	Menu(vector<string> opts) : opt(opts){};
 
 	// Construtor para json, Menu(arrayjson, {prop1, prop2, prop3})
@@ -189,6 +192,22 @@ struct Menu {
 
 			for (auto& c : header) c = toupper(c);
 			header += "\n";
+		}
+	}
+
+	void fromJson(json obj) {
+		opt.clear();
+		for (auto [key, value] : obj.items()) {
+			string line = key + ": ";
+			if (key == "base") {
+				for (auto [bKey, bValue] : value.items()) {
+					string pair = bKey + "/" + bValue.dump() + " ";
+					line += pair;
+				}
+			} else {
+				line += value.dump();
+			}
+			opt.push_back(line);
 		}
 	}
 
@@ -245,19 +264,59 @@ struct Menu {
 struct Instance {
 	Instance() { menu(); }
 
+	void palMenu(int id) {
+		Menu palMenu;
+		palMenu.fromJson(gPals[id]);
+
+		while (!palMenu.exit()) {
+			palMenu.interact();
+
+			if (palMenu.selected()) {
+				string buffer = "";	 // cin direto para json causando erros
+				switch (palMenu.escolha) {
+					case 0:
+						cout << "Mó trampo implementar agr";
+						break;
+					case 1:
+						cout << "Insira valores para as bases de atk, def e hp";
+						cin >> gPals[id]["base"]["atk"] >> gPals[id]["base"]["def"] >> gPals[id]["base"]["hp"];
+						break;
+					case 2:
+						cout << "Insira um novo nome para a especie";
+						cin >> buffer;
+						gPals[id]["especie"] = buffer;
+						break;
+					case 3:
+						cout << "Insira um novo tipo para o pal";
+						cin >> buffer;
+						gPals[id]["tipo"] = buffer;
+						break;
+				}
+				// Atualizar arquivos, menu e limpar cin.
+				updateFiles();
+				palMenu.fromJson(gPals[id]);
+				cin.clear();
+			}
+		}
+	}
+
 	void palsMenu() {
 		Menu palsMenu(gPals, {"especie", "tipo"});
 
 		while (!palsMenu.exit()) {
 			palsMenu.interact();
+
+			if (palsMenu.selected()) {
+				palMenu(palsMenu.escolha);
+			}
 		}
 	}
 
 	void menu() {
 		// vector<string> opt = {"1.Inventário", "2.Pals", "3.Ataques", "0.Sair"};
-		Menu mainMenu({"1.Inventário", "2.Pals", "3.Ataques", "0.Sair"});
+		Menu mainMenu({"Inventário", "Pals", "Ataques", "Sair"});
 
-		while (true) {
+		while (!mainMenu.exit()) {
 			mainMenu.interact();
 
 			if (mainMenu.selected()) {

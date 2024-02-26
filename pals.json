@@ -1,37 +1,54 @@
 [
-  {
-    "id": "01",
-    "especie": "Palrizard",
-    "tipo": "fire",
-    "base": { "hp": 60, "def": 65, "atk": 80 },
-    "ataquesPermitidos": ["Scratch"]
-  },
-  {
-    "id": "02",
-    "especie": "Palchu",
-    "tipo": "electric",
-    "base": { "hp": 25, "def": 20, "atk": 50 },
-    "ataquesPermitidos": []
-  },
-  {
-    "id": "03",
-    "especie": "Vulpika",
-    "tipo": "fire",
-    "base": { "hp": 45, "def": 45, "atk": 72 },
-    "ataquesPermitidos": []
-  },
-  {
-    "id": "04",
-    "especie": "Palteon",
-    "tipo": "dark",
-    "base": { "hp": 100, "def": 100, "atk": 100 },
-    "ataquesPermitidos": []
-  },
-  {
-    "id": "05",
-    "especie": "Blaspenis",
-    "tipo": "water",
-    "base": { "hp": 70, "def": 100, "atk": 70 },
-    "ataquesPermitidos": []
-  }
+    {
+        "ataquesPermitidos": [
+            "Scratch"
+        ],
+        "base": {
+            "atk": 100,
+            "def": 100,
+            "hp": 100
+        },
+        "especie": "Palrizz",
+        "tipo": "fire"
+    },
+    {
+        "ataquesPermitidos": [],
+        "base": {
+            "atk": 50,
+            "def": 20,
+            "hp": 25
+        },
+        "especie": "Palchu",
+        "tipo": "electric"
+    },
+    {
+        "ataquesPermitidos": [],
+        "base": {
+            "atk": 72,
+            "def": 45,
+            "hp": 45
+        },
+        "especie": "Vulpika",
+        "tipo": "fire"
+    },
+    {
+        "ataquesPermitidos": [],
+        "base": {
+            "atk": 100,
+            "def": 100,
+            "hp": 100
+        },
+        "especie": "Palteon",
+        "tipo": "dark"
+    },
+    {
+        "ataquesPermitidos": [],
+        "base": {
+            "atk": 70,
+            "def": 100,
+            "hp": 70
+        },
+        "especie": "Blaspenis",
+        "tipo": "water"
+    }
 ]
