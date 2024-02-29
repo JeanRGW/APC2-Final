@@ -20,7 +20,10 @@
     "xtr1common": "cpp",
     "vector": "cpp",
     "ios": "cpp",
-    "cstring": "cpp"
+    "cstring": "cpp",
+    "xhash": "cpp",
+    "xtree": "cpp",
+    "xutility": "cpp"
   },
 
   "[json]": {

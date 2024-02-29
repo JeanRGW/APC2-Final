@@ -17,16 +17,8 @@ using json = nlohmann::json;
 using namespace std;
 
 // Definir "banco de dados global"
-json rJson(string);
-json gPals	  = rJson("pals.json");
-json gAtaques = rJson("ataques.json");
-
-// Atualizar arquivos
-void wJson(json, string);
-void updateFiles() {
-	wJson(gPals, "pals.json");
-	wJson(gAtaques, "ataques.json");
-}
+json gPals;
+json gAtaques;
 
 // Recebe o json e nome de arquivo e escreve o json
 void wJson(json data, string file) {
@@ -38,19 +30,30 @@ void wJson(json data, string file) {
 }
 
 // Recebe um nome e lê e retorna o json
-json rJson(string file) {
-	json data;
+json rJson(const string& file) {
+	json data = {};
 
 	ifstream inJson(file);
 	if (inJson.is_open()) {
-		inJson >> data;
+		// Check if the file is empty
+		if (inJson.peek() != ifstream::traits_type::eof()) {
+			// File is not empty, read JSON data
+			inJson >> data;
+		} else {
+			cout << "Arquivo " << file << " esta vazio.\n";
+		}
 		inJson.close();
 	} else {
-		cout << "Nao foi possivel abrir " << file << ", continuando com lista vazia" << endl;
-		wJson(data, file);
+		cout << "Nao foi possivel abrir " << file << ". Usando json vazio.\n";
 	}
 
 	return data;
+}
+
+// Atualiza os arquivos globais
+void updateFiles() {
+	wJson(gPals, "pals.json");
+	wJson(gAtaques, "ataques.json");
 }
 
 // Checar se um valor está contido em um array json
@@ -149,6 +152,100 @@ struct Pal {
 	}
 };
 
+struct MenuSelecionado {
+	int id;
+	int escolha = 0;
+	bool enter	= false;
+	bool esc	= false;
+	vector<string> opts;
+
+	MenuSelecionado(int Id) : id(Id) { update(); }
+
+	void update() {
+		opts = {};
+		for (auto& ataque : gAtaques) {
+			string line;
+			if (valorContido(gPals[id]["ataquesPermitidos"], ataque["nome"])) {
+				line = "\e[0;31m";
+				line += ataque["nome"];
+				line += "\e[0m";
+			} else {
+				line = ataque["nome"];
+			}
+			opts.push_back(line);
+		}
+	}
+
+	int busca(json files, int begin, int end, string value) {
+		if (begin > end) {
+			return -1;
+		} else {
+			if (files[begin] == value) {
+				return begin;
+			} else {
+				return busca(files, begin + 1, end, value);
+			}
+		}
+	}
+
+	void add_remove() {
+		vector<string> vetorAtaquesPermitidos = gPals[id]["ataquesPermitidos"];
+		if (valorContido(gPals[id]["ataquesPermitidos"], gAtaques[escolha]["nome"])) {
+			int index = busca(vetorAtaquesPermitidos, 0, vetorAtaquesPermitidos.size() - 1, gAtaques[escolha]["nome"]);
+			gPals[id]["ataquesPermitidos"].erase(index);
+		} else {
+			gPals[id]["ataquesPermitidos"].push_back(gAtaques[escolha]["nome"]);
+		}
+		update();
+	}
+
+	void interact() {
+		// Montar frame
+		string frame = "\033[2J\033[H";	 // Inicializar com ascii para limpar tela
+
+		for (int i = 0; i < opts.size(); i++) {
+			if (i == escolha) {
+				frame += (">" + opts[i]);  // Highlight selecionado
+			} else {
+				frame += opts[i];
+			}
+
+			frame += "\n";
+		}
+		cout << frame << endl;
+
+		// Interação
+		int key = getch();
+		if (key == KEY_UP && escolha > 0) {
+			escolha--;
+		} else if (key == KEY_DOWN && escolha < opts.size() - 1) {
+			escolha++;
+		} else if (key == KEY_ENTER) {
+			enter = true;
+		} else if (key == KEY_ESC) {
+			esc = true;
+		}
+	};
+
+	bool selected() {
+		if (enter == true) {
+			enter = false;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	bool exit() {
+		if (esc == true) {
+			esc = false;
+			return true;
+		} else {
+			return false;
+		}
+	}
+};
+
 struct Menu {
 	int escolha = 0;
 	vector<string> opt;
@@ -227,7 +324,7 @@ struct Menu {
 
 			frame += "\n";
 		}
-		cout << frame;
+		cout << frame << endl;
 
 		// Interação
 		int key = getch();
@@ -264,6 +361,17 @@ struct Menu {
 struct Instance {
 	Instance() { menu(); }
 
+	void menuAtaquesPermitidos(int id) {
+		MenuSelecionado menu(id);
+		while (!menu.exit()) {
+			menu.interact();
+
+			if (menu.selected()) {
+				menu.add_remove();
+			}
+		}
+	}
+
 	void palMenu(int id) {
 		Menu palMenu;
 		palMenu.fromJson(gPals[id]);
@@ -275,19 +383,19 @@ struct Instance {
 				string buffer = "";	 // cin direto para json causando erros
 				switch (palMenu.escolha) {
 					case 0:
-						cout << "Mó trampo implementar agr";
+						menuAtaquesPermitidos(id);
 						break;
 					case 1:
-						cout << "Insira valores para as bases de atk, def e hp";
+						cout << "Insira valores para as bases de atk, def e hp: ";
 						cin >> gPals[id]["base"]["atk"] >> gPals[id]["base"]["def"] >> gPals[id]["base"]["hp"];
 						break;
 					case 2:
-						cout << "Insira um novo nome para a especie";
+						cout << "Insira um novo nome para a especie: ";
 						cin >> buffer;
 						gPals[id]["especie"] = buffer;
 						break;
 					case 3:
-						cout << "Insira um novo tipo para o pal";
+						cout << "Insira um novo tipo para o pal: ";
 						cin >> buffer;
 						gPals[id]["tipo"] = buffer;
 						break;
@@ -341,28 +449,24 @@ struct Instance {
 
 // MAIN
 int main() {
-	srand(1);
+	gAtaques = rJson("ataques.json");
+	gPals	 = rJson("pals.json");
 
-	/*
-		string a, b;
-		cin >> a;
-		cin >> b;
-
-		a.resize(24, ' ');
-		string final = a + b;
-		cout << final;
-		cin >> final;
-	*/
+	cout << "Err1";
+	if (gPals.empty()) {
+		json pal;
+		pal["especie"] = "Placeholder";
+		pal["tipo"]	   = "Placeholder";
+		json bases;
+		bases["hp"]				 = 0;
+		bases["atk"]			 = 0;
+		bases["def"]			 = 0;
+		pal["base"]				 = bases;
+		pal["ataquesPermitidos"] = json::array();
+		gPals.push_back(pal);
+	}
 
 	Instance ins;
-
-	/*
-	Pal primeiroPal(01);
-	Pal segundoPal(02);
-
-	primeiroPal.print();
-	segundoPal.print();
-	*/
 
 	return 0;
 }
