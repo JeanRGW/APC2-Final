@@ -317,12 +317,10 @@ struct Menu {
 
 		for (int i = 0; i < opt.size(); i++) {
 			if (i == escolha) {
-				frame += ("\e[1;97m" + opt[i] + "\e[0m");  // Highlight selecionado
-			} else {
-				frame += opt[i];
+				frame += ">";
 			}
 
-			frame += "\n";
+			frame += opt[i] + "\n";
 		}
 		cout << frame << endl;
 
@@ -422,7 +420,7 @@ struct Instance {
 
 	void menu() {
 		// vector<string> opt = {"1.Inventário", "2.Pals", "3.Ataques", "0.Sair"};
-		Menu mainMenu({"Inventário", "Pals", "Ataques", "Sair"});
+		Menu mainMenu({"Inventario", "Pals", "Ataques", "Sair"});
 
 		while (!mainMenu.exit()) {
 			mainMenu.interact();
