@@ -66,92 +66,6 @@ bool valorContido(json ArrayJson, string value) {
 	return false;
 }
 
-struct Pal {
-	string nome;
-	string especie;
-	int lvl;
-	int atk;
-	int hp;
-	int def;
-	json ataques[4];
-
-	Pal() {}
-
-	Pal(int ID) {
-		json palInfo = gPals[ID - 1];
-		json palBase = palInfo["base"];
-
-		especie = palInfo["especie"];
-		nome	= especie;
-
-		// Fazer depois: Definir level de acordo com a situação
-		lvl = rand() % 100 + 1;
-
-		hp = palBase["hp"];
-		hp *= (1.0 + lvl / 50.0);
-
-		def = palBase["def"];
-		def *= (1.0 + lvl / 50.0);
-
-		atk = palBase["atk"];
-		atk *= (1.0 + lvl / 50.0);
-
-		definirAtaques(palInfo);
-	}
-
-	// Encontrar os ataques permitidos para um pal
-	json ataquesPermitidos(json creatureInfo) {
-		json ataquesPermitidos;
-
-		json Extras = creatureInfo["ataquesPermitidos"];
-
-		for (const json ataque : gAtaques) {
-			if (creatureInfo["tipo"] == ataque["tipo"] || valorContido(Extras, ataque["nome"])) {
-				ataquesPermitidos += ataque;
-			}
-		}
-
-		return ataquesPermitidos;
-	}
-
-	// Definir ataques
-	void definirAtaques(json creatureInfo) {
-		json ataquesPerm = ataquesPermitidos(creatureInfo);
-
-		int maxAtaques = ataquesPerm.size() >= 4 ? 4 : ataquesPerm.size();
-
-		int i = 0;
-		while (i < maxAtaques) {
-			int random = rand() % ataquesPerm.size();
-			ataques[i] = ataquesPerm[random];
-
-			ataquesPerm.erase(random);
-			i++;
-		}
-	}
-
-	void print() {
-		cout << nome;
-		if (nome != especie) {
-			cout << "(" << especie << ")";
-		}
-
-		cout << " lvl." << lvl << endl;
-
-		cout << "ATK: " << atk << endl;
-		cout << "HP: " << hp << endl;
-		cout << "DEF: " << def << endl;
-
-		cout << "Ataques:" << endl;
-
-		for (int i = 0; i < 4; i++) {
-			if (!ataques[i].empty()) {
-				cout << setw(4) << ataques[i] << endl;
-			}
-		}
-	}
-};
-
 struct MenuSelecionado {
 	int id;
 	int escolha = 0;
@@ -252,6 +166,9 @@ struct Menu {
 	string header  = "";
 	bool hasHeader = false;
 
+	bool dynamic = false;
+	json* source;
+
 	bool enter = false;
 	bool esc   = false;
 
@@ -261,37 +178,58 @@ struct Menu {
 	// Construtor simples
 	Menu(vector<string> opts) : opt(opts){};
 
-	// Construtor para json, Menu(arrayjson, {prop1, prop2, prop3})
-	Menu(json opts, vector<string> props) {
-		// Converter para obj para string
-		for (auto el : opts) {
-			string line = "";
-			if (props.size() > 0) {
-				for (string prop : props) {
-					string propValue = el[prop];
-					propValue.resize(20, ' ');
-					line += propValue;
-				}
-			} else {
-				line = el;
-			}
-			opt.push_back(line);
-		}
-
-		// Header
-		if (props.size() > 0) {
-			hasHeader = true;
-
-			for (string prop : props) {
-				prop.resize(20, ' ');
-				header += prop;
-			}
-
-			for (auto& c : header) c = toupper(c);
-			header += "\n";
+	// Construtor para json, Menu(arrayjson, {prop1, prop2, prop3}, {header1, header2, header3})
+	Menu(json* opts, vector<string> props, vector<string> headers, bool vertical) : source(opts) {
+		if (vertical) {
+			constructVerticalJsonBody(*opts, props, headers);
+		} else {
+			constructHeader(headers);
+			constructJsonBody(*opts, props);
 		}
 	}
 
+	// Montar header
+	void constructHeader(vector<string> headers) {
+		hasHeader = true;
+
+		for (string head : headers) {
+			head.resize(20, ' ');
+			header += head;
+		}
+
+		for (auto& c : header) c = toupper(c);
+		header += "\n";
+	}
+
+	// Montar opções a partir do json
+	void constructJsonBody(json opts, vector<string> props) {
+		opt = {};
+
+		for (auto el : opts) {
+			string line = "";
+
+			for (string prop : props) {
+				string propValue = el[prop];
+				propValue.resize(20, ' ');
+				line += propValue;
+			}
+
+			opt.push_back(line);
+		}
+	}
+
+	void constructVerticalJsonBody(json obj, vector<string> props, vector<string> identifiers) {
+		opt = {};
+
+		for (int i = 0; i < props.size(); i++) {
+			string line = identifiers[i] + ": ";
+			line += obj[props[i]].dump();
+
+			opt.push_back(line);
+		}
+	}
+
+	// Atualiza menu de acordo com o json;
 	void fromJson(json obj) {
 		opt.clear();
 		for (auto [key, value] : obj.items()) {
@@ -308,6 +246,7 @@ struct Menu {
 		}
 	}
 
+	// Exibição e interação
 	void interact() {
 		// Montar frame
 		string frame = "\033[2J\033[H";	 // Inicializar com ascii para limpar tela
@@ -407,7 +346,7 @@ struct Instance {
 	}
 
 	void palsMenu() {
-		Menu palsMenu(gPals, {"especie", "tipo"});
+		Menu palsMenu(&gPals, {"especie", "tipo"}, {"especie", "tipo"}, false);
 
 		while (!palsMenu.exit()) {
 			palsMenu.interact();
