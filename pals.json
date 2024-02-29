@@ -4,9 +4,9 @@
             "Petal Dance"
         ],
         "base": {
-            "atk": 100,
-            "def": 50,
-            "hp": 60
+            "atk": 999,
+            "def": 999,
+            "hp": 999
         },
         "especie": "Palrizz",
         "tipo": "fire"

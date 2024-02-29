@@ -161,16 +161,22 @@ struct MenuSelecionado {
 };
 
 struct Menu {
+	// Interação
 	int escolha = 0;
+	bool enter	= false;
+	bool esc	= false;
+
+	// Opções
 	vector<string> opt;
 	string header  = "";
 	bool hasHeader = false;
 
-	bool dynamic = false;
+	// Update
+	bool dynamic  = false;
+	bool vertical = true;
 	json* source;
-
-	bool enter = false;
-	bool esc   = false;
+	vector<string> props;
+	vector<string> headers;
 
 	// Construtor vazio
 	Menu(){};
@@ -178,14 +184,16 @@ struct Menu {
 	// Construtor simples
 	Menu(vector<string> opts) : opt(opts){};
 
-	// Construtor para json, Menu(arrayjson, {prop1, prop2, prop3}, {header1, header2, header3})
-	Menu(json* opts, vector<string> props, vector<string> headers, bool vertical) : source(opts) {
-		if (vertical) {
-			constructVerticalJsonBody(*opts, props, headers);
-		} else {
-			constructHeader(headers);
-			constructJsonBody(*opts, props);
-		}
+	// Construtor para json, Menu(arrayjson, {prop1, prop2, prop3}, {header1, header2, header3}, vertical?)
+	Menu(json* Source, vector<string> Props, vector<string> Headers, bool Vertical)
+		: source(Source), props(Props), headers(Headers), vertical(Vertical) {
+		update();
+	}
+
+	// Construtor sem header values (utiliza as props)
+	Menu(json* Source, vector<string> Props, bool Vertical)
+		: source(Source), props(Props), headers(Props), vertical(Vertical) {
+		update();
 	}
 
 	// Montar header
@@ -201,9 +209,9 @@ struct Menu {
 		header += "\n";
 	}
 
-	// Montar opções a partir do json
-	void constructJsonBody(json opts, vector<string> props) {
-		opt = {};
+	// Montar corpo do menu
+	void constructHorizontalJsonBody(json opts, vector<string> props) {
+		opt.clear();
 
 		for (auto el : opts) {
 			string line = "";
@@ -219,7 +227,7 @@ struct Menu {
 	}
 
 	void constructVerticalJsonBody(json obj, vector<string> props, vector<string> identifiers) {
-		opt = {};
+		opt.clear();
 
 		for (int i = 0; i < props.size(); i++) {
 			string line = identifiers[i] + ": ";
@@ -229,20 +237,13 @@ struct Menu {
 		}
 	}
 
-	// Atualiza menu de acordo com o json;
-	void fromJson(json obj) {
-		opt.clear();
-		for (auto [key, value] : obj.items()) {
-			string line = key + ": ";
-			if (key == "base") {
-				for (auto [bKey, bValue] : value.items()) {
-					string pair = bKey + "/" + bValue.dump() + " ";
-					line += pair;
-				}
-			} else {
-				line += value.dump();
-			}
-			opt.push_back(line);
+	// Atualiza as informações do menu
+	void update() {
+		if (vertical) {
+			constructVerticalJsonBody(*source, props, headers);
+		} else {
+			constructHeader(headers);
+			constructHorizontalJsonBody(*source, props);
 		}
 	}
 
@@ -310,8 +311,8 @@ struct Instance {
 	}
 
 	void palMenu(int id) {
-		Menu palMenu;
-		palMenu.fromJson(gPals[id]);
+		Menu palMenu(&gPals[id], {"ataquesPermitidos", "base", "especie", "tipo"},
+					 {"Ataques Permitidos", "Base", "Especie", "Tipo"}, true);
 
 		while (!palMenu.exit()) {
 			palMenu.interact();
@@ -339,7 +340,7 @@ struct Instance {
 				}
 				// Atualizar arquivos, menu e limpar cin.
 				updateFiles();
-				palMenu.fromJson(gPals[id]);
+				palMenu.update();
 				cin.clear();
 			}
 		}
@@ -403,7 +404,7 @@ int main() {
 		gPals.push_back(pal);
 	}
 
-	Instance ins;
+	Instance runtime;
 
 	return 0;
 }
