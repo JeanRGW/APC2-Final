@@ -1,14 +1,59 @@
 [
     {
         "ataquesPermitidos": [
-            "Petal Dance"
+            "Scratch"
         ],
         "base": {
-            "atk": 999,
-            "def": 999,
-            "hp": 999
+            "atk": 80,
+            "def": 65,
+            "hp": 60
         },
-        "especie": "Palrizz",
+        "especie": "Palrizard",
+        "id": "01",
         "tipo": "fire"
+    },
+    {
+        "ataquesPermitidos": [],
+        "base": {
+            "atk": 50,
+            "def": 20,
+            "hp": 25
+        },
+        "especie": "Palchu",
+        "id": "02",
+        "tipo": "electric"
+    },
+    {
+        "ataquesPermitidos": [],
+        "base": {
+            "atk": 72,
+            "def": 45,
+            "hp": 45
+        },
+        "especie": "Vulpika",
+        "id": "03",
+        "tipo": "fire"
+    },
+    {
+        "ataquesPermitidos": [],
+        "base": {
+            "atk": 100,
+            "def": 100,
+            "hp": 100
+        },
+        "especie": "Palteon",
+        "id": "04",
+        "tipo": "dark"
+    },
+    {
+        "ataquesPermitidos": [],
+        "base": {
+            "atk": 70,
+            "def": 100,
+            "hp": 70
+        },
+        "especie": "Blaspenis",
+        "id": "05",
+        "tipo": "water"
     }
 ]

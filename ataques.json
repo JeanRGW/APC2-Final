@@ -1,8 +1,8 @@
 [
     {
-        "dmg": 80,
+        "dmg": "80",
         "nome": "Petal Dance",
-        "tipo": "grass"
+        "tipo": "fire"
     },
     {
         "dmg": 75,
