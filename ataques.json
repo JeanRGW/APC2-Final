@@ -1,22 +1,27 @@
 [
-    {
-        "dmg": "80",
-        "nome": "Petal Dance",
-        "tipo": "fire"
-    },
-    {
-        "dmg": 75,
-        "nome": "Flamethrower",
-        "tipo": "fire"
-    },
-    {
-        "dmg": 35,
-        "nome": "Scratch",
-        "tipo": "normal"
-    },
-    {
-        "dmg": 80,
-        "nome": "Thunderbolt",
-        "tipo": "electric"
-    }
+  {
+    "dmg": 80,
+    "nome": "Petal Dance",
+    "tipo": "fire"
+  },
+  {
+    "dmg": 75,
+    "nome": "Flamethrower",
+    "tipo": "fire"
+  },
+  {
+    "dmg": 35,
+    "nome": "Scratch",
+    "tipo": "normal"
+  },
+  {
+    "dmg": 80,
+    "nome": "Thunderbolt",
+    "tipo": "electric"
+  },
+  {
+    "dmg": 100000000,
+    "nome": "Bilolada",
+    "tipo": "dark"
+  }
 ]

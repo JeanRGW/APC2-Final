@@ -1,9 +1,0 @@
-// Recebe 2 keys, 0 e depois a direção
-cima - 72
-baixo - 80
-esquerda - 75
-direita - 77
-
-tab - 9
-enter - 13
-spaço - 32
