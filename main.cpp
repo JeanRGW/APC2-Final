@@ -110,7 +110,7 @@ struct nMenuSelecionado {
 		}
 	}
 
-	// (Conteúdo: Recurssão e busca)
+	// (Conteúdo: Recursão e busca)
 	int busca(json files, int begin, int end, string value) {
 		if (begin > end) {
 			return -1;
@@ -597,28 +597,35 @@ int main() {
 	gAtaques = rJson("ataques.json");
 	gPals	 = rJson("pals.json");
 
+	// (Conteúdo: Alocação dinâmica)
 	if (gPals.empty()) {
-		json pal;
-		pal["especie"] = "Placeholder";
-		pal["tipo"]	   = "neutral";
+		json* pal		  = new json;
+		(*pal)["especie"] = "Placeholder";
+		(*pal)["tipo"]	  = "neutral";
 		json bases;
-		bases["hp"]				 = 0;
-		bases["atk"]			 = 0;
-		bases["def"]			 = 0;
-		pal["base"]				 = bases;
-		pal["ataquesPermitidos"] = json::array();
-		gPals.push_back(pal);
+		bases["hp"]					= 0;
+		bases["atk"]				= 0;
+		bases["def"]				= 0;
+		(*pal)["base"]				= bases;
+		(*pal)["ataquesPermitidos"] = json::array();
+		gPals.push_back(*pal);
+
+		delete pal;
+		// https://learn.microsoft.com/pt-br/cpp/cpp/nullptr?view=msvc-170#:~:text=do%20ponteiro%20nulo%3B-,nullptr,-%C3%A9%20menos%20vulner%C3%A1vel
+		pal = nullptr;
 	}
 
 	if (gAtaques.empty()) {
-		json ataque;
-		ataque["nome"] = "Template";
-		ataque["dmg"]  = 0;
-		ataque["dmg"]  = "neutral";
-		gAtaques.push_back(ataque);
+		json* ataque	  = new json;
+		(*ataque)["nome"] = "Template";
+		(*ataque)["dmg"]  = 0;
+		(*ataque)["dmg"]  = "neutral";
+		gAtaques.push_back(*ataque);
+
+		delete ataque;
+		ataque = nullptr;
+
+		Instance runtime;
+
+		return 0;
 	}
-
-	Instance runtime;
-
-	return 0;
-}
