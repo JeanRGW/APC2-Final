@@ -51,9 +51,8 @@ json rJson(const string& file) {
 
 	ifstream inJson(file);
 	if (inJson.is_open()) {
-		// Check if the file is empty
+		// Checar se o arquivo não está vazio
 		if (inJson.peek() != ifstream::traits_type::eof()) {
-			// File is not empty, read JSON data
 			inJson >> data;
 		} else {
 			cout << ("Arquivo " + file + " esta vazio.\n");
@@ -125,18 +124,24 @@ struct nMenuSelecionado {
 	}
 
 	void add_remove() {
-		if (valorContido(*actualList, (*sourceList)[escolha]["nome"])) {
-			int index = busca(*actualList, 0, (*actualList).size() - 1, (*sourceList)[escolha]["nome"]);
+		// Valor a ser buscado
+		string searchValue = (*sourceList)[escolha]["nome"];
+
+		// Indice encontrado, -1 para não encontrado
+		int index = busca(*actualList, 0, (*actualList).size() - 1, searchValue);
+
+		// Apagar or adicionar
+		if (index != -1) {
 			(*actualList).erase(index);
 		} else {
-			(*actualList).push_back((*sourceList)[escolha]["nome"]);
+			(*actualList).push_back(searchValue);
 		}
 		update();
 	}
 
 	void interact() {
 		// Montar frame
-		string frame = "";	// \033[2J\033[H Inicializar com ascii para limpar tela
+		string frame = "Ataques permitidos\n";
 
 		for (int i = 0; i < opts.size(); i++) {
 			if (i == escolha) {
@@ -206,14 +211,14 @@ struct Menu {
 		dynamic = false;  // Não tentar atualizar
 	};
 
-	// Construtor para json sem header, utiliza props, Menu(arrayjson, {prop1, prop2, prop3}, vertical?)
+	// Construtor para json sem header, utiliza props, Menu(arrayjson, {prop1, prop2, prop3}, vertical?, ordenavel?)
 	Menu(json* Source, vector<string> Props, bool Vertical = false, bool Ordenavel = false)
 		: source(Source), props(Props), headers(Props), vertical(Vertical), ordenavel(Ordenavel) {
 		sort();
 		update();
 	}
 
-	// Construtor para json, Menu(arrayjson, {prop1, prop2, prop3}, {header1, header2, header3}, vertical?)
+	// Construtor para json, Menu(arrayjson, {prop1, prop2, prop3}, {header1, header2, header3}, vertical?, ordenavel?)
 	Menu(json* Source, vector<string> Props, vector<string> Headers, bool Vertical, bool Ordenavel = false)
 		: source(Source), props(Props), headers(Headers), vertical(Vertical), ordenavel(Ordenavel) {
 		sort();
@@ -280,6 +285,7 @@ struct Menu {
 		b	   = temp;
 	}
 
+	// (Conteúdo: ordenação)
 	void sort() {
 		if (ordenavel == true) {
 			if (indexOrdena == -2) {
@@ -314,7 +320,7 @@ struct Menu {
 		}
 
 		// Montar frame
-		string frame = "";	// \033[2J\033[H não tá funcionando no cmd, substituido por cls
+		string frame = "";
 		if (hasHeader) {
 			frame += header;
 		}
@@ -328,7 +334,7 @@ struct Menu {
 		}
 
 		if (ordenavel) {
-			frame += ("Ordeando por " + props[indexOrdena] + "\n");
+			frame += ("Ordenado por " + props[indexOrdena] + "\n");
 		}
 
 		system("cls");
@@ -370,8 +376,9 @@ struct Menu {
 class Instance {
    private:
 	// Geral
-	json preencherNovoObjeto(const json& model) {
+	json preencherObjeto(const json& model) {
 		json novoItem;
+		cout << "Preenchendo um novo objeto" << endl;
 
 		// Faz entrada do usuário para cada campo do modelo
 		for (const auto& item : model.items()) {
@@ -381,19 +388,18 @@ class Instance {
 			} else if (item.key() == "ataquesPermitidos") {	 // Função epecializada para ataques
 				novoItem["ataquesPermitidos"] = json::array();
 				menuAtaquesPermitidos(novoItem);
-			} else if (item.value().is_string()) {
+			} else if (item.value().is_string()) {	// String
 				string userInput;
+				cin.ignore(999, '\n');	// Ignorar linhas anteriores
 				getline(cin, userInput);
 				novoItem[item.key()] = userInput;
-			} else if (item.value().is_number()) {
+			} else if (item.value().is_number()) {	// Numero
 				double userInput;
 				cin >> userInput;
 				novoItem[item.key()] = userInput;
-			} else if (item.value().is_object()) {
-				novoItem[item.key()] = preencherNovoObjeto(item.value());
+			} else if (item.value().is_object()) {	// Objeto, chamada recursiva
+				novoItem[item.key()] = preencherObjeto(item.value());
 			}
-			cin.clear();
-			cin.ignore(999, '\n');
 		}
 
 		// Push the new data to the JSON array
@@ -459,33 +465,28 @@ class Instance {
 
 				case KEY_N_DOWN:
 				case KEY_N_UP: {
-					json novoAtaque = preencherNovoObjeto(ataqueModel);
+					json novoAtaque = preencherObjeto(ataqueModel);
 					gAtaques.push_back(novoAtaque);
 					updateFiles();
 				} break;
 
 				case KEY_BACKSPACE: {
-					gAtaques.erase(menu.escolha);
-					updateFiles();
+					if (gAtaques.size() > 0) {
+						gAtaques.erase(menu.escolha);
+						updateFiles();
+
+						// Reposicionar caso delete o ultimo elemento
+						if (menu.escolha > gAtaques.size() - 1) {
+							menu.escolha--;
+						}
+					}
 				} break;
 			}
 		}
 	}
 
 	// Menus de pals
-	// Menu ataques permitidos por ID, busca no global
-	void menuAtaquesPermitidos(int id) {
-		nMenuSelecionado menu(&gPals[id]["ataquesPermitidos"], &gAtaques);
-		while (!menu.exit()) {
-			menu.interact();
-
-			if (menu.keyPress() == KEY_ENTER) {
-				menu.add_remove();
-			}
-		}
-	}
-
-	// Menu ataques permitidos referência (quando for adicionar novo pal)
+	// Menu ataques permitidos on/off
 	void menuAtaquesPermitidos(json& pal) {
 		nMenuSelecionado menu(&pal["ataquesPermitidos"], &gAtaques);
 		while (!menu.exit()) {
@@ -508,12 +509,13 @@ class Instance {
 			if (menu.keyPress() == KEY_ENTER) {
 				switch (menu.escolha) {
 					case 0: {
-						menuAtaquesPermitidos(id);
+						menuAtaquesPermitidos(gPals[id]);
 					} break;
 					case 1: {
-						gPals[id]["base"] = preencherNovoObjeto(palModel["base"]);
+						gPals[id]["base"] = preencherObjeto(palModel["base"]);
 					} break;
 					case 2: {
+						cout << "Insira um novo nome para a especie";
 						string buffer;
 						getline(cin, buffer);
 						gPals[id]["especie"] = buffer;
@@ -522,7 +524,7 @@ class Instance {
 						gPals[id]["tipo"] = escolhaTipo();
 					} break;
 				}
-				// Atualizar arquivos, menu e limpar cin.
+				// Atualizar arquivos e limpar cin.
 				updateFiles();
 				cin.clear();
 			}
@@ -543,14 +545,21 @@ class Instance {
 
 				case KEY_N_DOWN:
 				case KEY_N_UP: {
-					json novoPal = preencherNovoObjeto(palModel);
+					json novoPal = preencherObjeto(palModel);
 					gPals.push_back(novoPal);
 					updateFiles();
 				} break;
 
 				case KEY_BACKSPACE: {
-					gPals.erase((menu.escolha));
-					updateFiles();
+					if (gPals.size() > 0) {
+						gPals.erase((menu.escolha));
+						updateFiles();
+
+						// Reposicionar caso delete o ultimo elemento
+						if (menu.escolha > gPals.size() - 1) {
+							menu.escolha--;
+						}
+					}
 				} break;
 			}
 		}
@@ -558,7 +567,7 @@ class Instance {
 
 	// Menu inicial
 	void menuInicial() {
-		Menu menu({"Inventario", "Pals", "Ataques", "Sair"});
+		Menu menu({"Pals", "Ataques", "Sair"});
 
 		while (!menu.exit()) {
 			menu.interact();
@@ -566,15 +575,12 @@ class Instance {
 			if (menu.keyPress() == KEY_ENTER) {
 				switch (menu.escolha) {
 					case 0:
-						// inv
-						break;
-					case 1:
 						menuPals();
 						break;
-					case 2:
+					case 1:
 						menuAtaques();
 						break;
-					case 3:
+					case 2:
 						return;
 						break;
 				}
