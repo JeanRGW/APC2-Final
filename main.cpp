@@ -376,6 +376,17 @@ struct Menu {
 class Instance {
    private:
 	// Geral
+	// Ler um input com tratamento de erro
+	template <typename T>
+	void ler(T& valor) {
+		while (!(cin >> valor)) {
+			cin.clear();
+			cin.ignore(999, '\n');
+
+			cerr << "Erro, insira novamente: ";
+		}
+	}
+
 	json preencherObjeto(const json& model) {
 		json novoItem;
 		cout << "Preenchendo um novo objeto" << endl;
@@ -383,19 +394,20 @@ class Instance {
 		// Faz entrada do usuário para cada campo do modelo
 		for (const auto& item : model.items()) {
 			cout << "Digite um novo valor para " << item.key() << ": ";
+
 			if (item.key() == "tipo") {	 // Função especializada para tipos
 				novoItem[item.key()] = escolhaTipo();
 			} else if (item.key() == "ataquesPermitidos") {	 // Função epecializada para ataques
 				novoItem["ataquesPermitidos"] = json::array();
 				menuAtaquesPermitidos(novoItem);
-			} else if (item.value().is_string()) {	// String
+			} else if (item.value() == "string") {	// String
 				string userInput;
-				cin.ignore(999, '\n');	// Ignorar linhas anteriores
+				cin.ignore(999, '\n');
 				getline(cin, userInput);
 				novoItem[item.key()] = userInput;
 			} else if (item.value().is_number()) {	// Numero
 				double userInput;
-				cin >> userInput;
+				ler(userInput);
 				novoItem[item.key()] = userInput;
 			} else if (item.value().is_object()) {	// Objeto, chamada recursiva
 				novoItem[item.key()] = preencherObjeto(item.value());
@@ -432,22 +444,25 @@ class Instance {
 					case 0: {
 						cout << "Insira um novo nome para o ataque: ";
 						string buffer;
+						cin.ignore(999, '\n');
 						getline(cin, buffer);
 						gAtaques[id]["nome"] = buffer;
 					} break;
+
 					case 1: {
 						cout << "Insira um novo valor para o dano do ataque: ";
 						double buffer;
-						cin >> buffer;
+						ler(buffer);
+
 						gAtaques[id]["dmg"] = buffer;
 					} break;
+
 					case 2: {
 						gAtaques[id]["tipo"] = escolhaTipo();
 					} break;
-				}  // Atualizar arquivos, menu e limpar cin.
-				updateFiles();
-				cin.clear();
-				cin.ignore(999, '\n');
+				}
+
+				updateFiles();	// Atualizar arquivos
 			}
 		}
 	}
@@ -517,6 +532,7 @@ class Instance {
 					case 2: {
 						cout << "Insira um novo nome para a especie";
 						string buffer;
+						cin.ignore(999, '\n');
 						getline(cin, buffer);
 						gPals[id]["especie"] = buffer;
 					} break;
@@ -524,9 +540,8 @@ class Instance {
 						gPals[id]["tipo"] = escolhaTipo();
 					} break;
 				}
-				// Atualizar arquivos e limpar cin.
-				updateFiles();
-				cin.clear();
+
+				updateFiles();	// Atualizar arquivos
 			}
 		}
 	}

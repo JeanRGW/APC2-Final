@@ -11,6 +11,18 @@
         "tipo": "water"
     },
     {
+        "ataquesPermitidos": [
+            "Scratch"
+        ],
+        "base": {
+            "atk": 90.0,
+            "def": 90.0,
+            "hp": 90.0
+        },
+        "especie": "Cleito",
+        "tipo": "neutral"
+    },
+    {
         "ataquesPermitidos": [],
         "base": {
             "atk": 50,
