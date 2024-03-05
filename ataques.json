@@ -1,8 +1,8 @@
 [
     {
-        "dmg": 100000000,
-        "nome": "Bilolada",
-        "tipo": "dark"
+        "dmg": 35,
+        "nome": "Scratch",
+        "tipo": "normal"
     },
     {
         "dmg": 75,
@@ -10,23 +10,18 @@
         "tipo": "fire"
     },
     {
-        "dmg": 90.0,
-        "nome": "Marretada",
-        "tipo": "neutral"
-    },
-    {
         "dmg": 80,
         "nome": "Petal Dance",
         "tipo": "fire"
     },
     {
-        "dmg": 35,
-        "nome": "Scratch",
-        "tipo": "normal"
-    },
-    {
         "dmg": 80,
         "nome": "Thunderbolt",
         "tipo": "electric"
+    },
+    {
+        "dmg": 100000000,
+        "nome": "Bilolada",
+        "tipo": "dark"
     }
 ]

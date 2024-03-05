@@ -240,10 +240,10 @@ struct Menu {
 	}
 
 	// Montar corpo do menu horizontal
-	void constructHorizontalJsonBody(json opts, vector<string> props) {
+	void constructHorizontalJsonBody(json jsonArray, vector<string> props) {
 		opt.clear();
 
-		for (auto el : opts) {
+		for (auto el : jsonArray) {
 			string line = "";
 
 			for (string prop : props) {
@@ -257,12 +257,12 @@ struct Menu {
 	}
 
 	// Montar menu vertical
-	void constructVerticalJsonBody(json obj, vector<string> props, vector<string> identifiers) {
+	void constructVerticalJsonBody(json jsonObject, vector<string> props, vector<string> headers) {
 		opt.clear();
 
 		for (int i = 0; i < props.size(); i++) {
-			string line = identifiers[i] + ": ";
-			line += obj[props[i]].dump();
+			string line = headers[i] + ": ";
+			line += jsonObject[props[i]].dump();
 
 			opt.push_back(line);
 		}
@@ -599,7 +599,12 @@ int main() {
 
 	// (Conteúdo: Alocação dinâmica)
 	if (gPals.empty()) {
-		json* pal		  = new json;
+		json* pal = new (nothrow) json;
+		if (pal == nullptr) {
+			cerr << "Deu ruim" << endl;
+			return 1;
+		}
+
 		(*pal)["especie"] = "Placeholder";
 		(*pal)["tipo"]	  = "neutral";
 		json bases;
@@ -611,7 +616,6 @@ int main() {
 		gPals.push_back(*pal);
 
 		delete pal;
-		// https://learn.microsoft.com/pt-br/cpp/cpp/nullptr?view=msvc-170#:~:text=do%20ponteiro%20nulo%3B-,nullptr,-%C3%A9%20menos%20vulner%C3%A1vel
 		pal = nullptr;
 	}
 
@@ -624,8 +628,9 @@ int main() {
 
 		delete ataque;
 		ataque = nullptr;
-
-		Instance runtime;
-
-		return 0;
 	}
+
+	Instance runtime;
+
+	return 0;
+}

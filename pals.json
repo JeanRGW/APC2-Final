@@ -1,16 +1,14 @@
 [
     {
-        "ataquesPermitidos": [
-            "Bilolada"
-        ],
+        "ataquesPermitidos": [],
         "base": {
-            "atk": 100,
-            "def": 100,
-            "hp": 100
+            "atk": 60.0,
+            "def": 100.0,
+            "hp": 70.0
         },
-        "especie": "Palteon",
-        "id": "04",
-        "tipo": "dark"
+        "especie": "Blaspenis",
+        "id": "05",
+        "tipo": "water"
     },
     {
         "ataquesPermitidos": [],
@@ -37,6 +35,19 @@
         "tipo": "fire"
     },
     {
+        "ataquesPermitidos": [
+            "Bilolada"
+        ],
+        "base": {
+            "atk": 100,
+            "def": 100,
+            "hp": 100
+        },
+        "especie": "Palteon",
+        "id": "04",
+        "tipo": "dark"
+    },
+    {
         "ataquesPermitidos": [],
         "base": {
             "atk": 72,
@@ -46,16 +57,5 @@
         "especie": "Vulpika",
         "id": "03",
         "tipo": "fire"
-    },
-    {
-        "ataquesPermitidos": [],
-        "base": {
-            "atk": 70,
-            "def": 100,
-            "hp": 70
-        },
-        "especie": "Blaspenis",
-        "id": "05",
-        "tipo": "water"
     }
 ]
